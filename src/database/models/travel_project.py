@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import List, Optional
 
 from sqlalchemy import String, DateTime, ForeignKey, Text, Boolean
@@ -15,7 +15,7 @@ class TravelProjectModel(Base):
     description: Mapped[Optional[str]] = mapped_column(
         Text, nullable=True
     )
-    start_date: Mapped[Optional[datetime]] = mapped_column(
+    start_date: Mapped[Optional[date]] = mapped_column(
         DateTime, nullable=True
     )
 

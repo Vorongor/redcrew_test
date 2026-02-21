@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     POSTGRES_DB_PORT: int = 5432
     POSTGRES_DB: str
 
+    ART_INSTITUTE_API_URL: str = Field(
+        "placeholder_url", alias="ART_INSTITUTE_API_URL"
+    )
+
     @computed_field
     @property
     def DATABASE_URL(self) -> str:

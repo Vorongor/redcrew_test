@@ -31,8 +31,17 @@ services:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - "__pycache__/"
+        - action: rebuild
+          path: pyproject.toml
     command: >
-      sh -c "uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"
+      sh -c "uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
 
   migrator:
     build: .
