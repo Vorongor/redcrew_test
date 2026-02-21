@@ -2,6 +2,8 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.schemas import UserReadSchema
+from src.auth.security.utils import get_current_user
 from src.database import get_db
 from src.travel.place.crud import (
     add_place_to_project,
@@ -28,7 +30,8 @@ places_router = APIRouter(tags=["Places"])
 async def add_place(
         project_id: int,
         place_in: PlaceCreate,
-        db: Annotated[AsyncSession, Depends(get_db)]
+        db: Annotated[AsyncSession, Depends(get_db)],
+        auth_user: Annotated[UserReadSchema, Depends(get_current_user)],
 ):
     """Add a validated Art Institute place to an existing project."""
     try:
@@ -56,17 +59,18 @@ async def add_place(
                    response_model=List[PlaceRead])
 async def list_places(
         project_id: int,
-        db: Annotated[AsyncSession, Depends(get_db)]
+        db: Annotated[AsyncSession, Depends(get_db)],
+        auth_user: Annotated[UserReadSchema, Depends(get_current_user)],
 ):
     """List all places for a specific project."""
     return await get_project_places(db, project_id=project_id)
 
 
-
 @places_router.get("/places/{place_id}", response_model=PlaceRead)
 async def get_place(
         place_id: int,
-        db: Annotated[AsyncSession, Depends(get_db)]
+        db: Annotated[AsyncSession, Depends(get_db)],
+        auth_user: Annotated[UserReadSchema, Depends(get_current_user)],
 ):
     """Get details for a single place."""
     try:
@@ -79,7 +83,8 @@ async def get_place(
 async def update_place(
         place_id: int,
         place_in: PlaceUpdate,
-        db: Annotated[AsyncSession, Depends(get_db)]
+        db: Annotated[AsyncSession, Depends(get_db)],
+        auth_user: Annotated[UserReadSchema, Depends(get_current_user)],
 ):
     """Update notes or visited status for a place."""
     try:
