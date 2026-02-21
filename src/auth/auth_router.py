@@ -152,7 +152,7 @@ async def refresh(
         return await refresh_token(
             token=token_data, db=db, jwt_manager=jwt_manager, settings=settings
         )
-    except BaseUserException as err:
+    except BaseSecurityException as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=str(err)
         )

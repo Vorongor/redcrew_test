@@ -118,6 +118,11 @@ async def login_user(
     user = await _get_user_by_email(login_data.email, db)
     if not user or not user.check_password(login_data.password):
         raise UserNotFoundException()
+
+    await db.execute(
+        delete(RefreshTokenModel).where(RefreshTokenModel.user_id == user.id)
+    )
+
     token_data = {
         "user_id": user.id,
         "email": user.email,
@@ -201,8 +206,9 @@ async def refresh_token(
     stmt = select(RefreshTokenModel).where(
         RefreshTokenModel.token == token.refresh_token
     )
+
     result = await db.execute(stmt)
-    db_token = result.scalar()
+    db_token = result.scalar_one_or_none()
 
     if not db_token:
         raise InvalidRefreshTokenError()
@@ -210,9 +216,11 @@ async def refresh_token(
     try:
         payload = jwt_manager.decode_refresh_token(token.refresh_token)
     except Exception as e:
+        await db.delete(db_token)
+        await db.commit()
         raise InvalidRefreshTokenError()
 
-    user_id = payload.get("id")
+    user_id = payload.get("user_id")
     email = payload.get("email")
 
     if not user_id or not email:
